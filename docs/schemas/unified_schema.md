@@ -1,4 +1,4 @@
-# Unified Schema
+# Unified Protocol Opportunity Schema
 
 The Unified Schema is a JSON schema that defines the structure of the data that is collected from the target protocols.
 
