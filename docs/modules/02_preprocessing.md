@@ -1,7 +1,9 @@
 # Module Specification: 02 - Preprocessing Round
 
 **Parent Document:** [Rate Rover Overview](../README.md)
+
 **Version:** 0.1.0
+
 **Last Updated:** 2025-05-16
 
 ## 1. Purpose
