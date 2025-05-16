@@ -1,7 +1,3 @@
-This is a draft for a general-purpose Fluid API Python Client Documentation. It illustrates how to use a Python client to interact with the API and retrieve key information about Vaults and NFT positions.
-
----
-
 # Fluid API Python Client Documentation
 
 This documentation outlines how to use a conceptual Python client to interact with the Fluid API, focusing on retrieving and interpreting data related to Vaults and user-specific NFT positions. The Fluid API provides comprehensive data on lending and borrowing activities within the Fluid Protocol across various blockchain networks.
