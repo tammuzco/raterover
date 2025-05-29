@@ -1,0 +1,54 @@
+{
+  "name": "RateRover",
+  "logo": {
+    "dark": "/assets/logo-dark.svg",
+    "light": "/assets/logo-light.svg"
+  },
+  "favicon": "/assets/favicon.ico",
+  "colors": {
+    "primary": "#0D9488",
+    "light": "#2DD4BF",
+    "dark": "#0F766E",
+    "anchors": {
+      "from": "#0D9488",
+      "to": "#2DD4BF"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "GitHub",
+      "url": "https://github.com/tammuzco/raterover"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Get Started",
+    "url": "/getting-started"
+  },
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": [
+        "getting-started",
+        "quickstart",
+        "installation"
+      ]
+    },
+    {
+      "group": "Core Concepts",
+      "pages": [
+        "core-concepts/overview",
+        "core-concepts/architecture"
+      ]
+    },
+    {
+      "group": "API Reference",
+      "pages": [
+        "api-reference/endpoints",
+        "api-reference/authentication"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "github": "https://github.com/tammuzco/raterover"
+  }
+} 
