@@ -1,5 +1,10 @@
-
 # Rate Rover
+
+[![Documentation](https://img.shields.io/badge/Documentation-tammuz.mintlify.app-blue)](https://tammuz.mintlify.app)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.9%2B-blue)](https://www.python.org)
+[![Network](https://img.shields.io/badge/Network-Arbitrum-blue)](https://arbitrum.io)
+[![Status](https://img.shields.io/badge/Status-Alpha-orange)](https://github.com/tammuzco/raterover)
 
 ## 1. Overview
 

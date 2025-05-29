@@ -18,6 +18,14 @@
     {
       "name": "GitHub",
       "url": "https://github.com/tammuzco/raterover"
+    },
+    {
+      "name": "Status",
+      "url": "https://img.shields.io/badge/Status-Alpha-orange"
+    },
+    {
+      "name": "Network",
+      "url": "https://img.shields.io/badge/Network-Arbitrum-blue"
     }
   ],
   "topbarCtaButton": {
@@ -45,6 +53,14 @@
       "pages": [
         "api-reference/endpoints",
         "api-reference/authentication"
+      ]
+    },
+    {
+      "group": "Community",
+      "pages": [
+        "community/contributing",
+        "community/code-of-conduct",
+        "community/security"
       ]
     }
   ],
