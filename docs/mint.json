@@ -18,25 +18,16 @@
     {
       "name": "GitHub",
       "url": "https://github.com/tammuzco/raterover"
-    },
-    {
-      "name": "Status",
-      "url": "https://img.shields.io/badge/Status-Alpha-orange"
-    },
-    {
-      "name": "Network",
-      "url": "https://img.shields.io/badge/Network-Arbitrum-blue"
     }
   ],
   "topbarCtaButton": {
     "name": "Get Started",
-    "url": "/getting-started"
+    "url": "/quickstart"
   },
   "navigation": [
     {
       "group": "Getting Started",
       "pages": [
-        "getting-started",
         "quickstart",
         "installation"
       ]
@@ -45,14 +36,16 @@
       "group": "Core Concepts",
       "pages": [
         "core-concepts/overview",
-        "core-concepts/architecture"
+        "core-concepts/architecture",
+        "core-concepts/fsm-design",
+        "core-concepts/user-configuration",
+        "core-concepts/pearl-integration"
       ]
     },
     {
-      "group": "API Reference",
+      "group": "Schema Reference",
       "pages": [
-        "api-reference/endpoints",
-        "api-reference/authentication"
+        "schemas/unified-schema"
       ]
     },
     {
@@ -61,6 +54,12 @@
         "community/contributing",
         "community/code-of-conduct",
         "community/security"
+      ]
+    },
+    {
+      "group": "Project Roadmap",
+      "pages": [
+        "milestones"
       ]
     }
   ],

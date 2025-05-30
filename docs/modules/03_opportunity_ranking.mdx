@@ -1,0 +1,53 @@
+---
+title: 'Opportunity Ranking Round (FSM Module 03)'
+description: 'Opportunity Ranking and Allocation Logic'
+---
+
+> **Subsection of:** [Architecture](../core-concepts/architecture)
+
+### Purpose
+The OpportunityRankingRound evaluates all standardized market data (from the UnifiedMarketData schema) to identify and rank arbitrage opportunities. The process applies user-defined and algorithmic criteria to select the most promising opportunities for capital allocation.
+
+### Ranking Criteria
+- **Net Estimated APY:** Opportunities are ranked by net APY (supply_apy_net - borrow_apy_net - estimated transaction costs).
+- **Risk Score:** Incorporates protocol risk, health factor, LTV, and liquidity depth.
+- **Liquidity:** Opportunities with higher available liquidity are preferred.
+- **User Constraints:** Only opportunities matching user-configured assets, protocols, and risk parameters are considered.
+- **Transaction Cost:** Estimated gas and slippage costs are subtracted from net APY.
+
+### Example Ranking Algorithm
+```python
+# Pseudocode for ranking
+ranked = []
+for opp in all_possible_opportunities:
+    if opp['net_estimated_apy'] < user.min_net_apy:
+        continue
+    if opp['risk_score'] > user.max_risk_score:
+        continue
+    if opp['liquidity_usd'] < user.min_liquidity:
+        continue
+    ranked.append(opp)
+ranked.sort(key=lambda x: x['net_estimated_apy'], reverse=True)
+```
+
+### Risk Scoring
+- **Protocol Risk:** Static score per protocol (e.g., audited, TVL, exploit history).
+- **Position Risk:** Health factor, LTV, and volatility.
+- **Composite Score:** Weighted sum of protocol and position risk.
+
+### Capital Allocation Logic
+- **Allocation per Opportunity:**
+  - User can set max allocation per opportunity/protocol.
+  - Allocation is the minimum of available capital, protocol cap, and user-configured max.
+- **Example:**
+```python
+allocation = min(user.max_allocation, opp['liquidity_usd'], available_capital)
+```
+- **Diversification:** Optionally, capital can be split across top-N ranked opportunities.
+
+### Output
+- The top-ranked opportunities and their allocations are passed to the TransactionConstructionRound for execution.
+- See [ArbitrageOpportunity Schema](../schemas/unified_schema.md) for the data structure used.
+
+*For more details, see the PRD and user configuration docs.*
+

@@ -5,4 +5,44 @@ description: 'RateRover core concepts overview'
 
 # Core Concepts Overview
 
-Learn about the fundamental concepts of RateRover.
+## Agent Purpose
+RateRover is an autonomous agent designed to identify and execute profitable DeFi yield arbitrage opportunities on Arbitrum. Its core objective is to automate the full arbitrage lifecycle: data collection, opportunity analysis, transaction execution, and position management, with robust risk controls and extensibility for new protocols and assets.
+
+## Open Autonomy Framework Integration
+RateRover is built on the Open Autonomy (OLAS) framework, leveraging its FSM-based agent architecture. Each operational phase (data collection, ranking, allocation, etc.) is implemented as a round in the FSM, with transitions managed by the AbciApp. This ensures modularity, consensus, and reliable state management across agent instances.
+
+- FSM rounds: DataCollection, Preprocessing, OpportunityRanking, Allocation, Transaction, Tracking, Rebalancing, Reset
+- Each round = `AbstractRound` + `Behaviour`
+- SynchronizedData ensures all agents share the same state
+
+## Technical Development Plan
+### MVP Phase
+- Implement core FSM rounds for data collection, ranking, allocation, transaction construction, and monitoring
+- Integrate with Fluid Protocol and AAVE V3 for initial data sources
+- Gnosis Safe integration for secure transaction execution
+- Pearl healthcheck endpoint and environment variable support
+
+### Integration Phase
+- Expand protocol support (Compound, Dolomite, Silo)
+- Enhance risk management and rebalancing logic
+- Deepen Pearl integration (UI, monitoring, dashboards)
+- Documentation and user configuration options
+
+## Integration Requirements
+- Agent exposes `/healthcheck` endpoint for Pearl
+- Reads all configuration from environment variables injected by Pearl (see [Architecture](./architecture))
+- State persistence via `STORE_PATH`
+- Gnosis Safe for on-chain actions
+
+## Required Environment Variables
+- `STORE_PATH`, `ETHEREUM_LEDGER_RPC`, `GNOSIS_LEDGER_RPC`, etc.
+- `SAFE_CONTRACT_ADDRESSES`, `WITHDRAWAL_MODE`
+- Protocol API keys (e.g., `THE_GRAPH_API_KEY`, `PORTALS_API_KEY`<sub>*MVP Evaluation*</sub>)
+
+
+## How It All Connects
+- The FSM orchestrates the agent's workflow, with each round handling a specific responsibility
+- Pearl manages agent lifecycle, injects configuration, and monitors health
+- All logic and configuration is designed for seamless deployment and operation on Pearl
+
+See [Architecture](./architecture) for module breakdown and [Milestones](../milestones) for the development roadmap.

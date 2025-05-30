@@ -3,6 +3,39 @@ title: 'Quickstart'
 description: 'Quick start guide for RateRover'
 ---
 
-# Quickstart Guide
+## 1. Clone the Repo
+```sh
+git clone https://github.com/tammuzco/raterover.git
+cd raterover
+```
 
-Get up and running with RateRover in minutes.
+## 2. Install Dependencies
+```sh
+poetry install
+```
+
+## 3. Configure Environment Variables
+- Copy `.env.example` to `.env` and fill in required values (see [Getting Started](./getting-started)).
+- For Pearl, variables are injected automatically.
+
+## 4. Run the Agent
+```sh
+python run.py
+```
+
+Welcome to **RateRover** – an autonomous DeFi arbitrage agent for the Arbitrum network, built on the Open Autonomy (OLAS) framework and designed for seamless integration with the Pearl platform.
+
+## What is RateRover?
+RateRover is an automated agent that identifies and executes profitable yield arbitrage opportunities across DeFi lending/borrowing protocols. It collects market data, analyzes opportunities, executes transactions, and manages positions, all with robust risk controls.
+
+## Required Environment Variables
+- `STORE_PATH`: Directory for persistent agent data (set by Pearl)
+- `ARBITRUM_LEDGER_RPC`: RPC endpoints for supported chains
+- `SAFE_CONTRACT_ADDRESSES`: Gnosis Safe addresses (JSON)
+- `WITHDRAWAL_MODE`: If true, agent should unwind positions
+- Any protocol-specific API keys (e.g., `THE_GRAPH_API_KEY`)
+
+See the [Configuration](./core-concepts/architecture) page for full details.
+
+## Next Steps
+- [Installation](./installation)

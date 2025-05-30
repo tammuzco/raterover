@@ -1,0 +1,48 @@
+---
+title: 'User Configuration'
+description: 'Configuring RateRover for your needs'
+---
+
+## Overview
+RateRover is highly configurable via environment variables and service.yaml parameters. Pearl injects most required variables at runtime.
+
+## Configurable Parameters
+- **Protocol Selection**: Choose which protocols to include
+- **Asset Preferences**: Specify active asset class (Stablecoins, ETH or BTC)
+- **Risk Parameters**:
+  - Minimum/target health factor
+  - Max LTV
+  - Max allocation per opportunity/protocol
+- **Yield Thresholds**:
+  - Minimum net APY to enter/maintain opportunities
+- **Operational Parameters**:
+  - Data collection interval
+  - Gas price strategy
+  - Slippage tolerance
+- **Capital Allocation**: Total capital and allocation strategy
+
+## Environment Variables
+| Variable | Description |
+|----------|-------------|
+| STORE_PATH | Persistent data directory (Pearl) |
+| ARBITRUM_LEDGER_RPC | RPC endpoints |
+| SAFE_CONTRACT_ADDRESSES | Gnosis Safe addresses (JSON) |
+| WITHDRAWAL_MODE | Unwind mode |
+| THE_GRAPH_API_KEY | Protocol API key |
+| PORTALS_API_KEY | Optional (for MVP) |
+
+
+## Example Configuration (service.yaml)
+```yaml
+params:
+  target_protocols: ["Fluid", "AAVE_V3_Arbitrum"]
+  active_asset_class: "Stablecoins" | "ETH" | "BTC"
+  min_health_factor: 1.2
+  max_ltv: 0.7
+  min_net_apy: 0.03
+  data_collection_interval: 600
+```
+
+## Pearl Integration
+- Pearl UI allows users to set/override key variables
+- All config is read at agent startup for seamless deployment 

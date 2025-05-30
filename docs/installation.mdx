@@ -3,6 +3,27 @@ title: 'Installation'
 description: 'Installation guide for RateRover'
 ---
 
-# Installation
+## Requirements
+- Python 3.9+ (see Pearl's `pyproject.toml` for exact version)
+- pip
+- (Optional) Mintlify CLI for local docs preview
 
-Learn how to install and configure RateRover.
+## Python Environment Setup
+We recommend using a virtual environment to avoid dependency conflicts:
+
+```sh
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+## Install Python Dependencies
+Install all required dependencies, including Open Autonomy and Open AEA (see Pearl integration plan for required versions):
+
+```sh
+pip install -r requirements.txt
+```
+
+If you need to install specific versions (replace with actual required versions):
+```sh
+pip install open-autonomy==<VERSION> open-aea==<VERSION>
+```

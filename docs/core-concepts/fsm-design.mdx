@@ -1,0 +1,34 @@
+---
+title: 'FSM Design'
+description: 'Finite State Machine design for RateRover'
+---
+
+## Overview
+RateRover's core logic is orchestrated by a Finite State Machine (FSM) implemented using the Open Autonomy framework. Each round represents a distinct operational phase, with transitions managed by the AbciApp.
+
+## Rounds Breakdown
+- **DataCollectionRound**: Fetches raw market data from protocols
+- **PreprocessingRound**: Normalizes and enriches data
+- **OpportunityRankingRound**: Identifies and ranks arbitrage opportunities
+- **AllocationRound**: Decides capital allocation
+- **TransactionConstructionRound**: Prepares Gnosis Safe transactions
+- **PositionTrackingRound**: Monitors open positions
+- **RebalancingRound**: Adjusts positions as needed
+- **ResetRound**: Loops FSM for continuous operation
+
+## State Transitions
+| From | Event | To |
+|------|-------|----|
+| DataCollection | DONE | Preprocessing |
+| Preprocessing | DONE | OpportunityRanking |
+| OpportunityRanking | DONE | Allocation |
+| Allocation | DONE | TransactionConstruction |
+| TransactionConstruction | DONE | PositionTracking |
+| PositionTracking | DONE | Rebalancing |
+| Rebalancing | DONE | Reset |
+| Reset | DONE | DataCollection |
+
+## Open Autonomy & Pearl Integration
+- FSM is implemented using Open Autonomy's AbciApp and AbstractRound classes
+- Pearl monitors FSM state via healthcheck endpoint
+- All state transitions and data are synchronized for agent reliability 

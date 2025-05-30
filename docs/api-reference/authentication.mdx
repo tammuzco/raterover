@@ -3,6 +3,11 @@ title: 'Authentication'
 description: 'RateRover authentication guide'
 ---
 
-# Authentication
+## Endpoint Security
+- By default, agent endpoints (healthcheck, UI) are not authenticated, as they are only exposed to the local Pearl environment.
+- If deploying outside Pearl, consider adding authentication (API keys, JWT, etc).
+
+## Pearl Context
+- Pearl manages agent process isolation and network access, so external authentication is not required for standard deployments.
 
 Learn how to authenticate with RateRover's API.

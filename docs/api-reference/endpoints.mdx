@@ -3,6 +3,27 @@ title: 'API Endpoints'
 description: 'RateRover API endpoints reference'
 ---
 
-# API Endpoints
-
 Complete reference of RateRover's API endpoints.
+
+## Healthcheck
+- `GET /healthcheck`
+  - Returns agent status, FSM state, and health metrics (required by Pearl)
+  - Example response:
+    ```json
+    {
+      "seconds_since_last_transition": 12.3,
+      "is_transitioning_fast": true,
+      "period": 5,
+      "rounds": ["DataCollectionRound", "PreprocessingRound"],
+      "agent_health": {"is_making_on_chain_transactions": true, ...},
+      ...
+    }
+    ```
+
+## Agent UI (Optional)
+- `GET /` (serves HTML UI if implemented)
+
+## Other Endpoints
+- Extend as needed for custom monitoring or control
+
+See [Pearl Integration Guide](../core-concepts/architecture)

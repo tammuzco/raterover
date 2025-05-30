@@ -1,11 +1,9 @@
+---
+title: 'Data Collection Round (FSM Module 01)'
+description: 'Fetches and aggregates raw DeFi market data for the FSM.'
+---
 
-# Module Specification: 01 - Data Collection Round
-
-**Parent Document:** [Rate Rover Overview](../../README.md)
-
-**Version:** 0.1.0
-
-**Last Updated:** 2025-05-16
+> **Subsection of:** [Architecture](../core-concepts/architecture)
 
 ## 1. Purpose
 
@@ -62,6 +60,33 @@ The cyclical execution of the FSM ensures that data collection occurs at interva
 *   `current_fsm_cycle_count`: (Integer, optional) Can be used for logging or conditional logic.
 *   `last_collection_status`: (Dict, optional) Status of the previous data collection attempt, to potentially influence current attempt.
 
+## Protocol-Specific Data Fetching: Fluid API
+
+The Data Collection round fetches vault and NFT position data from the Fluid API for configured chain IDs.
+
+**Endpoints Used:**
+- `/v2/{chainId}/vaults` (GET): Retrieves all active vaults and their market data.
+- `/v2/{chainId}/nfts/{nftId}` (GET): Retrieves user-specific NFT position data (if needed).
+
+**Mapping to `raw_market_data_sources`:**
+- Each successful call to `/vaults` produces an entry:
+  - `protocol_name`: "Fluid"
+  - `chain_id`: as configured
+  - `source_type`: "API"
+  - `status`: "SUCCESS" or "FAILURE"
+  - `collection_time_utc`: timestamp of fetch
+  - `raw_data`: full JSON response from Fluid API (vaults list)
+  - `error_message`: null or error details
+
+**Key Field Mappings:**
+- Vault fields: `id`, `address`, `supplyToken`, `borrowToken`, `totalSupplyLiquidity`, `totalBorrowLiquidity`, `supplyRate`, `borrowRate`, `collateralFactor`, `liquidationThreshold`, etc.
+- All fields are passed as-is in `raw_data` for later normalization.
+
+**Error Handling & Retries:**
+- On HTTP/network error, set `status` to "FAILURE" and log `error_message`.
+- Retry logic and backoff are applied as per skill parameters.
+- See [Fluid API Client Doc](../FLUID_CLIENT) for error types and best practices.
+
 ## 4. Core Logic & Responsibilities
 
 ### 4.1. `DataCollectionBehaviour` (`async_act` method):
@@ -114,76 +139,4 @@ The cyclical execution of the FSM ensures that data collection occurs at interva
     *   Set `round_timeout_seconds = self.params.collection_round_timeout_seconds`.
 2.  **Consensus Logic (within `end_block`):**
     *   The exact consensus mechanism depends on the chosen base round class (e.g., `CollectSameUntilThresholdRound`, `CollectDifferentUntilAllRound`).
-    *   If `CollectSameUntilThresholdRound` is used, all agents are expected to fetch and propose identical raw data (or at least a hash of it). This is unlikely given external API calls.
-    *   More likely, `CollectDifferentUntilAllRound` (or a custom variant) will be used, where each agent submits its fetched data. The `end_block` logic would then need to:
-        *   Iterate through received payloads from all participating agents.
-        *   Implement a strategy for merging or selecting the "best" data if discrepancies exist (e.g., use data from the majority, use the first successful fetch for each source, or flag discrepancies for manual review). For Alpha, a simpler approach might be that each agent attempts all fetches, and the "agreed" payload in `SynchronizedData` could be a list of *all* agents' findings, with the Preprocessing round then taking on the task of deduplication/selection. Alternatively, a designated fetcher agent could be used if the service has >1 agent.
-        *   **For simplicity in Alpha with a single or few agents:** Assume the round collects the payload from the agent(s) and the primary task is to get *a* version of the data into `SynchronizedData`.
-3.  **Update `SynchronizedData`:**
-    *   Store the agreed-upon (or processed) `collected_data_summary_list` into `self.synchronized_data` under a key like `raw_market_data_sources`. Example:
-      `self.synchronized_data.update(raw_market_data_sources=most_voted_payload.get("collected_data"))`
-    *   Update a timestamp like `self.synchronized_data.update(last_successful_collection_utc=utc_now())`.
-4.  **Transition Event Determination:**
-    *   Analyze the `status` fields within the agreed `collected_data_summary_list`.
-    *   If all critical data sources reported "SUCCESS": `return self.synchronized_data, Event.DONE`
-    *   If some non-critical sources failed but critical ones succeeded: `return self.synchronized_data, Event.DONE_WITH_WARNINGS` (or just `Event.DONE` for Alpha).
-    *   If critical data sources reported "FAILURE": `return self.synchronized_data, Event.FETCH_FAILED`
-    *   If an internal error occurred or timeout: `return self.synchronized_data, Event.ERROR` or `Event.TIMEOUT`.
-
-## 5. Outputs
-
-### 5.1. Data written to `SynchronizedData` (by `DataCollectionRound`):
-*   **`raw_market_data_sources`**: (List[Dict]) A list where each dictionary represents a data source's fetch attempt:
-    ```json
-    [
-        {
-            "protocol_name": "Fluid",
-            "chain_id": 42161,
-            "source_type": "API",
-            "status": "SUCCESS",
-            "collection_time_utc": "2023-10-27T10:00:00Z",
-            "raw_data": { /* ... actual JSON data from Fluid API ... */ },
-            "error_message": null
-        },
-        {
-            "protocol_name": "AAVE_V3_Arbitrum",
-            "chain_id": 42161,
-            "source_type": "SUBGRAPH",
-            "status": "FAILURE",
-            "collection_time_utc": "2023-10-27T10:00:05Z",
-            "raw_data": null,
-            "error_message": "Subgraph request timed out after 3 retries."
-        }
-        // ... more entries for other protocols
-    ]
-    ```
-*   **`last_successful_collection_utc`**: (Timestamp) Overall timestamp for the cycle.
-*   **`data_collection_cycle_status`**: (String: e.g., "COMPLETED", "PARTIAL_FAILURE")
-
-### 5.2. FSM Events (from `DataCollectionRound`):
-*   `Event.DONE`: Data collection successful (or sufficiently successful).
-*   `Event.DONE_WITH_WARNINGS`: Data collection completed, but some non-critical sources might have failed.
-*   `Event.FETCH_FAILED`: Critical data source(s) failed.
-*   `Event.ERROR`: Internal error in the round/behaviour.
-*   `Event.TIMEOUT`: Round execution exceeded `collection_round_timeout_seconds`.
-
-## 6. Interactions with Other Rounds/Behaviours
-
-*   **Receives Control From:** Typically `ResetRound` or an initial `RegistrationRound`. Can also be re-triggered by a monitoring round if a data refresh is needed.
-*   **Passes Control To:**
-    *   `PreprocessingRound` (on `Event.DONE` or `Event.DONE_WITH_WARNINGS`).
-    *   An Error Handling Round or back to `ResetRound` (on `Event.FETCH_FAILED`, `Event.ERROR`, `Event.TIMEOUT`).
-
-## 7. TODOs & Open Questions
-
-*   **`TODO`**: Apply the GraphQL query strings for each target subgraph (AAVE, Compound, Dolomite, Silo) and store them in the skill's configuration (e.g., `params.graphql_queries`). Ensure queries fetch all fields needed for the **Unified Schema** and subsequent APY/risk calculations.
-*   **`TODO`**: Document the official rate limits for the Fluid API `/v2/{chainId}/vaults` endpoint to refine retry strategies.
-*   **`TODO`**: Determine the FSM cycle time. This will directly influence the effective data collection interval. If specific sources need faster updates than the main FSM cycle, a separate, faster-looping background FSM or a specialized round might be needed (consider for post-Alpha).
-*   **`TODO`**: Implement the `DataCollectionBehaviour` including concurrent asynchronous fetching for all configured sources using `yield from self.get_http_response()`, robust retry logic, and error handling for each source.
-*   **`TODO`**: Implement the `DataCollectionPayload` class.
-*   **`TODO`**: Implement the `DataCollectionRound` class, including the logic for processing submitted payloads (consensus strategy if multiple agents) and updating `SynchronizedData`. Define the FSM `Event` enum.
-*   **`TODO`**: Establish a clear definition of "critical" vs. "non-critical" data sources to determine transitions (e.g., `Event.DONE` vs. `Event.FETCH_FAILED`). This should be configurable.
-*   **`TODO`**: Confirm if all necessary token price data (e.g., `inputTokenPriceUSD`) is reliably available directly from the primary market data queries. If not, design the logic for supplementary price oracle calls (either within this behaviour or in Preprocessing).
-*   **`TODO`**: Ensure secure handling and access of `api_keys` within the skill, loaded from service/agent configuration.
-*   **`TODO`**: Update `skill.yaml` examples to show how `target_protocols_config`, `graphql_queries`, and other parameters for this round would be structured.
-
+    *   If `CollectSameUntilThresholdRound`

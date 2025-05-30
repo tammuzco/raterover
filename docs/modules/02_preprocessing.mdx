@@ -1,10 +1,9 @@
-# Module Specification: 02 - Preprocessing Round
+---
+title: 'Preprocessing Round (FSM Module 02)'
+description: 'Standardizes and enriches raw DeFi market data for opportunity evaluation.'
+---
 
-**Parent Document:** [Rate Rover Overview](../README.md)
-
-**Version:** 0.1.0
-
-**Last Updated:** 2025-05-16
+> **Subsection of:** [Architecture](../core-concepts/architecture)
 
 ## 1. Purpose
 
@@ -62,6 +61,35 @@ The Preprocessing module is implemented as one or more `AbstractRound` subclasse
 
 ### 3.3. Unified Market Data Schema Definition:
 *   The structure and field definitions of the target `UnifiedMarketData` object (as defined in `docs/schemas/unified_schema.md` or similar). This schema guides the mapping process.
+
+## Fluid Data Mapping & Enrichment
+
+The Preprocessing round transforms Fluid API data into the UnifiedMarketData schema for downstream opportunity evaluation.
+
+**Key Steps:**
+- For each Fluid vault in `raw_data`:
+  - Extract fields: `id`, `supplyToken`, `borrowToken`, `totalSupplyLiquidity`, `totalBorrowLiquidity`, `supplyRate`, `borrowRate`, `collateralFactor`, `liquidationThreshold`, etc.
+  - Normalize APY fields: Convert basis points to decimals (e.g., `supplyRate.liquidity_interest` of 450 = 0.045).
+  - Calculate net APY: Combine interest, trading, and staking yields as needed. Subtract protocol fees if configured.
+  - Map to UnifiedMarketData fields: `protocol_name`, `chain_id`, `market_id`, `asset_symbol`, `supply_apy`, `supply_apy_net`, etc.
+  - Set `last_updated_at` from `collection_time_utc`.
+
+**Share-to-Amount Conversion:**
+- To convert user shares to token amounts:
+  - `user_token_amount = (user_shares / total_shares) * total_token_amount`
+  - Use `totalSupplyLiquidity` and `liquiditySupplyData` for supply; `totalBorrowLiquidity` and `liquidityBorrowData` for borrow.
+  - Scale by token decimals.
+
+**Health Factor & LTV:**
+- Health factor: `health_factor = (collateral_value / debt_value) / liquidation_threshold`
+- LTV: `ltv = debt_value / collateral_value`
+- Use token prices from vault data or oracle endpoint.
+
+**Pitfalls:**
+- Always check for missing price or decimals data.
+- If API provides `health_factor` directly, prefer it; otherwise, compute as above.
+
+**Reference:** See [Fluid API Client Doc](../FLUID_CLIENT) for detailed field definitions and calculation logic.
 
 ## 4. Core Logic & Responsibilities
 
@@ -160,4 +188,3 @@ The Preprocessing module is implemented as one or more `AbstractRound` subclasse
 *   **`TODO`**: If gas/slippage estimation requires external calls (e.g., to a gas oracle, or DEX for liquidity), ensure `PreprocessingBehaviour` uses `AsyncBehaviour` and `yield from self.get_http_response()` for these calls.
 *   **`TODO`**: Clarify how to handle cases where essential data for a market is missing from the raw input (e.g., token price missing, preventing USD value calculations). Should the market be dropped, or included with missing fields?
 *   **`TODO`**: Update `skill.yaml` examples to show how parameters like `stale_data_threshold_seconds`, `protocol_operational_fees`, etc., would be structured.
-
