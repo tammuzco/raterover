@@ -43,6 +43,14 @@
       ]
     },
     {
+      "group": "FSM Modules",
+      "pages": [
+          "modules/01_data_collection",
+          "modules/02_preprocessing",
+          "modules/03_opportunity_ranking"
+      ]
+    },
+    {
       "group": "Schema Reference",
       "pages": [
         "schemas/unified-schema"
